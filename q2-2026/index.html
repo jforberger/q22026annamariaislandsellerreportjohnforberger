@@ -522,28 +522,33 @@
 </footer>
 
 <script>
-  const ZAPIER_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/29066226/4mxk89m/";
+  // Leads go to Web3Forms, which emails each request to John. The access key is public by design.
+  const WEB3FORMS_URL = "https://api.web3forms.com/submit";
+  const WEB3FORMS_KEY = "98aab1f4-48ed-4d23-8acf-3ac8bd87b86d";
 
   const form = document.getElementById('leadForm');
   const submitBtn = document.getElementById('leadSubmit');
   const thanks = document.getElementById('leadThanks');
 
-  function sendLeadToZapier(name, email) {
-    if (!ZAPIER_WEBHOOK_URL) return;
+  function sendLead(name, email) {
     try {
-      fetch(ZAPIER_WEBHOOK_URL, {
+      fetch(WEB3FORMS_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        keepalive: true,
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({
+          access_key: WEB3FORMS_KEY,
+          subject: 'Island Ledger Q2 2026 report request (archive)',
+          from_name: 'The Island Ledger',
           name: name,
           email: email,
           source: 'The Island Ledger Q2 2026 AMI Report (archive)',
           page: 'q2-2026-archive',
-          submitted_at: new Date().toISOString(),
+          page_url: window.location.href,
         }),
       });
     } catch (e) {
-      // Never block report delivery on the CRM handoff.
+      // Never block report delivery on the lead handoff.
     }
   }
 
@@ -565,7 +570,7 @@
     submitBtn.disabled = true;
     submitBtn.textContent = 'Sending...';
 
-    sendLeadToZapier(name, email);
+    sendLead(name, email);
     deliverReport();
 
     form.style.display = 'none';
