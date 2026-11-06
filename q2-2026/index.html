@@ -523,6 +523,8 @@
 
 <script>
   // Leads go to Web3Forms, which emails each request to John. The access key is public by design.
+  // Leads go to John's own Cloudflare Worker first; Web3Forms is the backup.
+  const LEAD_URL = "https://leads.jforberger.com/";
   const WEB3FORMS_URL = "https://api.web3forms.com/submit";
   const WEB3FORMS_KEY = "98aab1f4-48ed-4d23-8acf-3ac8bd87b86d";
 
@@ -532,21 +534,24 @@
 
   function sendLead(name, email) {
     try {
-      fetch(WEB3FORMS_URL, {
+      const body = {
+        access_key: WEB3FORMS_KEY,
+        subject: 'Island Ledger Q2 2026 report request (archive)',
+        from_name: 'The Island Ledger',
+        name: name || '(first name not given)',
+        email: email,
+        source: 'The Island Ledger Q2 2026 AMI Report (archive)',
+        page: 'q2-2026-archive',
+        page_url: window.location.href,
+        sms_consent: 'n/a',
+      };
+      const post = (url) => fetch(url, {
         method: 'POST',
         keepalive: true,
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({
-          access_key: WEB3FORMS_KEY,
-          subject: 'Island Ledger Q2 2026 report request (archive)',
-          from_name: 'The Island Ledger',
-          name: name,
-          email: email,
-          source: 'The Island Ledger Q2 2026 AMI Report (archive)',
-          page: 'q2-2026-archive',
-          page_url: window.location.href,
-        }),
-      });
+        body: JSON.stringify(body),
+      }).then((r) => r.json()).then((j) => { if (!j || !j.success) throw new Error('lead failed'); });
+      post(LEAD_URL).catch(() => post(WEB3FORMS_URL)).catch(() => {});
     } catch (e) {
       // Never block report delivery on the lead handoff.
     }
