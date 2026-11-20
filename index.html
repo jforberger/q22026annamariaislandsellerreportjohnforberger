@@ -23,7 +23,8 @@
         q.set('utm_campaign', 'island_ledger_mailer');
       }
     }
-    window.location.replace('https://jforberger.com/island-ledger/?' + q.toString() + window.location.hash);
+    var dest = q.get('utm_medium') === 'qr' ? 'https://jforberger.com/island-ledger/from-mailer/' : 'https://jforberger.com/island-ledger/';
+    window.location.replace(dest + '?' + q.toString() + window.location.hash);
   })();
 </script>
 <style>body{font-family:Georgia,serif;background:#1e3742;color:#f4efe6;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;text-align:center;padding:24px}a{color:#f4efe6}</style>
