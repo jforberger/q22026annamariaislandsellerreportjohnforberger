@@ -14,7 +14,11 @@
   (function () {
     var q = new URLSearchParams(window.location.search);
     if (!q.has('utm_source')) {
-      if (document.referrer) {
+      var inApp = /FBAN|FBAV|FB_IAB|Instagram/i.test(navigator.userAgent || '');
+      if (inApp) {
+        q.set('utm_source', 'meta');
+        q.set('utm_medium', 'lead_form');
+      } else if (document.referrer) {
         q.set('utm_source', 'github_forward');
         try { q.set('utm_content', new URL(document.referrer).hostname); } catch (e) {}
       } else {
